@@ -12,8 +12,8 @@ if (!isset($_GET['nama'])) {
 $encodedName = $_GET['nama'];
 $name = base64_decode($encodedName);
 
-// Query case sensitive di MySQL (BINARY)
-$stmt = $conn->prepare("SELECT COUNT(*) FROM murid_ujian WHERE BINARY nama = ?");
+$stmt = $conn->prepare("SELECT COUNT(*) FROM murid_ujian WHERE nama = ?
+");
 $stmt->bind_param("s", $name);
 $stmt->execute();
 $stmt->bind_result($count);
