@@ -1,19 +1,30 @@
 <?php
 session_start();
+require 'config.php';
 
 if (isset($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];
-    $password = $_POST['password'];
+    $password = md5($_POST['password']);
 
-    if ($username === 'ismu' && $password === 'sayadmin') {
+    // Prepared statement untuk keamanan
+    $stmt = $conn->prepare("SELECT * FROM admin_users WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
         $_SESSION['admin_logged_in'] = true;
         header("Location: dashboard.php");
         exit;
     } else {
         $error = "Username atau password salah!";
     }
+
+    $stmt->close();
 }
+
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 

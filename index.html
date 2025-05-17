@@ -29,8 +29,12 @@
   <!-- Custom Alert Modal -->
   <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-lg p-6 max-w-xs w-full text-center shadow-lg">
-      <p class="mb-4 text-gray-800 text-lg font-semibold" id="alert-message">Pesan alert</p>
-      <button id="alert-ok-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">OK</button>
+      <p class="mb-4 text-gray-800 text-base font-medium leading-relaxed" id="alert-message">
+        Pesan alert
+      </p>
+      <button id="alert-ok-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+        OK
+      </button>
     </div>
   </div>
 
@@ -57,9 +61,24 @@
       // Redirect ke quiz.html dengan nama di query param
       // const encodedName = encodeURIComponent(name);
       const encodedName = base64UrlEncode(name);
-      localStorage.removeItem('remainingTime');
-      sessionStorage.setItem("statusPengerjaan", "0");
-      window.location.href = `quiz.php?nama=${encodedName}`;
+      // Cek ke backend apakah nama sudah ada
+      fetch(`./admin/cek_nama.php?nama=${encodeURIComponent(encodedName)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.exists) {
+            alertMessage.innerHTML = 'Kamu sudah pernah mengikuti ujian, <br>Silahkan hubungi bu Ismulia untuk dihapus data ujian sebelumnya ya...<br>biar kamu bisa Remidial Ulang. 😊😊';
+            customAlert.classList.remove('hidden');
+          } else {
+            localStorage.removeItem('remainingTime');
+            sessionStorage.setItem("statusPengerjaan", "0");
+            window.location.href = `quiz.php?nama=${encodedName}`;
+          }
+        })
+        .catch(err => {
+          console.error('Error saat pengecekan nama:', err);
+          alertMessage.textContent = 'Terjadi kesalahan saat pengecekan nama, silakan coba lagi.';
+          customAlert.classList.remove('hidden');
+        });
     });
 
     alertOkBtn.addEventListener('click', () => {
